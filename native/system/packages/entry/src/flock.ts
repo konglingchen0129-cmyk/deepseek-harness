@@ -42,6 +42,8 @@ function loadBinding(): FlockBinding {
  *   EAGAIN/EWOULDBLOCK; other syscall failures also reject. Syscall errors carry
  *   code, positive errno, and syscall='flock'. Native setup errors, unsupported
  *   platforms, and addon loading failures reject; importing alone does not load it.
+ *   Windows has no platform package, so acquisition there rejects with
+ *   code='ERR_FLOCK_UNSUPPORTED_PLATFORM' and the Harness keeps its own lock semantics.
  */
 export async function tryLockExclusive(fd: number): Promise<void> {
   const errno = await new Promise<number>((resolve) => {
