@@ -283,7 +283,9 @@ async function main(): Promise<void> {
     DSH_DESKTOP_TARGET_PLATFORM: target.platform,
     DSH_DESKTOP_TARGET_ARCH: target.arch,
   }
-  const electronBuilderEnv = desktopElectronBuilderEnvironment(targetEnv, invocation.unsigned)
+  // A directory build stops before publishable artifacts, so it takes the same local-only signing
+  // path as --unsigned; otherwise it demands the Windows EV certificate inputs for an unpacked tree.
+  const electronBuilderEnv = desktopElectronBuilderEnvironment(targetEnv, invocation.unsigned || invocation.directory)
   for (const name of WINDOWS_SIGNING_ENV_NAMES) {
     if (!invocation.unsigned && process.env[name] !== undefined) electronBuilderEnv[name] = process.env[name]
   }
