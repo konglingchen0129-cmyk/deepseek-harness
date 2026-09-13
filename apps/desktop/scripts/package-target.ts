@@ -74,6 +74,22 @@ export function withoutWindowsSigningEnvironment(environment: NodeJS.ProcessEnv)
 }
 
 /**
+ * Let pnpm confirm its own prompts on package preparation subprocesses.
+ *
+ * pnpm aborts with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` when the installed
+ * `node_modules` does not match the pnpm running the build and no TTY can confirm the
+ * purge — which happens on any host whose global pnpm differs from
+ * `package.json#packageManager`, including the documented package commands run from a
+ * CI job, an editor task, or a piped shell. The purge has no other supported prompt.
+ * @param environment - Packaging command environment.
+ * @returns A copy that preselects pnpm's non-interactive answers unless the caller decided.
+ */
+export function withNonInteractivePackageManager(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  if (environment.CI !== undefined) return environment
+  return { ...environment, CI: 'true' }
+}
+
+/**
  * Select signing and NSIS-compatible archive filters for electron-builder.
  * @param environment - Target packaging environment.
  * @param unsigned - Whether to create a local unsigned Windows artifact.
@@ -277,7 +293,9 @@ async function main(): Promise<void> {
     rmSync(releaseRecordPath, { force: true })
     rmSync(`${releaseRecordPath}.tmp`, { force: true })
   }
-  const buildEnv = withoutWindowsSigningEnvironment(withoutDesktopUploadCredentials(process.env))
+  const buildEnv = withNonInteractivePackageManager(
+    withoutWindowsSigningEnvironment(withoutDesktopUploadCredentials(process.env)),
+  )
   const targetEnv: NodeJS.ProcessEnv = {
     ...buildEnv,
     DSH_DESKTOP_TARGET_PLATFORM: target.platform,

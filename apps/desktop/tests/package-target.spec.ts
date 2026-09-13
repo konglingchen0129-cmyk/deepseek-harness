@@ -4,6 +4,7 @@ import {
   desktopElectronBuilderEnvironment,
   parseDesktopPackageInvocation,
   resolveDesktopPackageTarget,
+  withNonInteractivePackageManager,
   withoutDesktopUploadCredentials,
   withoutWindowsSigningEnvironment,
 } from '../scripts/package-target.ts'
@@ -104,6 +105,16 @@ describe('desktop package target', () => {
       DSH_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
       DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
     })).toEqual({ DSH_DESKTOP_AUTO_UPDATE_ENV: 'production' })
+  })
+
+  it('preselects pnpm non-interactive confirmations for package preparation subprocesses', () => {
+    const environment = { DSH_DESKTOP_APP_ID: 'com.example.desktop' }
+    expect(withNonInteractivePackageManager(environment)).toEqual({
+      DSH_DESKTOP_APP_ID: 'com.example.desktop', CI: 'true',
+    })
+    // An explicit choice wins: CI=false keeps pnpm from purging mismatched node_modules.
+    expect(withNonInteractivePackageManager({ CI: 'false' })).toEqual({ CI: 'false' })
+    expect(environment).toEqual({ DSH_DESKTOP_APP_ID: 'com.example.desktop' })
   })
 
   it('keeps COS credentials out of every packaging subprocess', () => {

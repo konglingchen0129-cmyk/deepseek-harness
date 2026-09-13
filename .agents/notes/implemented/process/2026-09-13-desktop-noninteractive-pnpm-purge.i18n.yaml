@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-13-desktop-noninteractive-pnpm-purge.md
+2026-09-13-desktop-noninteractive-pnpm-purge.md: 29e471454d74efec5b2d6e93cefba3e1f417cd0e
+2026-09-13-desktop-noninteractive-pnpm-purge.zh.md: 8ad01d52dc6df23c40b2c89c337c478c71d39779
